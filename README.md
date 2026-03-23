@@ -1,78 +1,238 @@
-# Telco Customer Churn Prediction
-
-This repository presents a comprehensive machine learning model developed as part of **a hackathon conducted by UiPath Student Community at KIIT** using the IBM Telco Customer Churn dataset.
-
----
-
-##  Project Summary
-
-* **Goal**: Predict whether a customer will churn (leave the service) based on telecom usage and contract data.
-* **Models**: Random Forest (with GridSearchCV)
+# 🚀 Telecom Churn Prediction System  
+### Full Stack Machine Learning Project (FastAPI + ML Pipeline + Frontend)
 
 ---
 
-##  Project Files
+## 📌 Project Overview
 
-```
-.
-├── dataset/
-│   └── WA_Fn-UseC_-Telco-Customer-Churn.csv
-├── Task 6_CustomerChurnTel.ipynb
+Customer churn is a major challenge in the telecom industry, directly impacting revenue and growth. This project leverages **Machine Learning and API-based architecture** to predict whether a customer is likely to churn based on key behavioral and billing features.
+
+The system provides:
+
+* Real-time churn prediction
+* Backend API with validation and ML inference
+* Interactive frontend for user input and results
+
+---
+
+## 🏗️ System Architecture
+
+This project follows a **modular full-stack architecture**:
+
+* **Frontend:** User interface for input and prediction display
+* **Backend (FastAPI):** Handles API requests and ML inference
+* **ML Pipeline:** Pre-trained model using Scikit-learn
+* **Dataset & Notebook:** Used for training and experimentation
+
+---
+
+## 📂 Project Structure
+
+```bash
+TelecomChurnPrediction/
+│
+├── backend/
+│   ├── main.py                  # FastAPI backend
+│   └── model/
+│       └── churn_pipeline.pkl   # ML pipeline model
+│
+├── frontend/                   # Frontend UI (multiple files)
+│
+├── churn_model.pkl             # Trained model (alternative)
+├── WA_Fn-UseC_-Telco-Customer-Churn.csv   # Dataset
+├── Task_6_CustomerChurnTel.ipynb          # Training notebook
+├── requirements.txt           # Python dependencies
+├── package-lock.json          # Frontend dependencies
 └── README.md
 ```
 
 ---
 
-##  Dataset Overview
+## ⚙️ Technologies Used
 
-* **Source**: IBM Sample Dataset
-* **Records**: 7,043 customers
-* **Target Variable**: `Churn` (Yes / No)
-* **Features**: Gender, SeniorCitizen, tenure, MonthlyCharges, TotalCharges, Contract, PaymentMethod, and more
----
+### 🔹 Backend
 
-## Results (Random Forest with GridSearchCV)
+* FastAPI
+* Uvicorn
+* Pydantic (Data Validation)
 
-* **Accuracy**: 0.786
-* **AUC-ROC**: 0.693
+### 🔹 Machine Learning
 
-**Confusion Matrix**:
+* Scikit-learn
+* Pandas, NumPy
+* Joblib (Model Serialization)
 
-```
-           Predicted 0  Predicted 1
-Actual 0          925          116
-Actual 1          185          183
-```
+### 🔹 Frontend
 
-**Classification Report:**
-
-```
-              precision    recall  f1-score   support
-
-           0       0.83      0.89      0.86      1041
-           1       0.61      0.50      0.55       368
-
-    accuracy                           0.79      1409
-   macro avg       0.72      0.69      0.70      1409
-weighted avg       0.78      0.79      0.78      1409
-```
+* HTML, CSS, JavaScript
+  *(or framework used)*
 
 ---
 
-##  Conclusion
+## 🔍 Backend API Details
 
-* The **Random Forest model with GridSearchCV** yielded the best performance with an **accuracy of \~79%** and an **AUC-ROC of 0.69**.
-* The model demonstrated strong capability in identifying non-churners and moderate recall for churners, which is crucial for business intervention strategies.
-* Recommendations:
+The backend is built using **FastAPI** and provides a REST API for predictions.
 
-  * Use SMOTE or similar techniques to address class imbalance
-  * Try ensemble models like XGBoost, LightGBM
-  * Incorporate additional features (usage trends, complaints, etc.)
+### ✅ Endpoint: `/predict`
+
+**Method:** POST
+
+**Input:**
+
+```json
+{
+  "tenure": 10,
+  "MonthlyCharges": 70.5,
+  "TotalCharges": 1500
+}
+```
+
+### 🔒 Validation Rules
+
+* Tenure: 0–100
+* MonthlyCharges: 0–500
+* TotalCharges: 0–10000
+
+### 📤 Output:
+
+```json
+{
+  "churn": "Yes"
+}
+```
+
+The backend uses a **pre-trained ML pipeline** to process inputs and generate predictions. 
 
 ---
 
-##  Contributors
+## 🤖 Machine Learning Pipeline
 
-- [@devanshigit](https://github.com/devanshigit) 
-- [@abahadur29](https://github.com/abahadur29) 
+* Data preprocessing
+* Feature engineering
+* Model training using Scikit-learn
+* Model saved using Joblib
+* Integrated into backend for real-time inference
 
+---
+
+## 📊 Dataset
+
+* Telecom customer dataset
+* Includes:
+
+  * Customer tenure
+  * Billing information
+  * Service usage patterns
+
+---
+
+## 🚀 How to Run the Project
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/ishwarthecodddr/TelecomChurnPrediction.git
+cd TelecomChurnPrediction
+```
+
+---
+
+### 2️⃣ Run Backend (FastAPI)
+
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+Backend will run at:
+
+```
+http://127.0.0.1:8000
+```
+
+API Docs:
+
+```
+http://127.0.0.1:8000/docs
+```
+
+---
+
+### 3️⃣ Run Frontend
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+---
+
+## 🖥️ Frontend Preview
+
+> 📸 Add your frontend screenshots below
+
+### 🔹 Home Page
+
+<!-- INSERT SCREENSHOT HERE -->
+
+### 🔹 Input Form
+
+<!-- INSERT SCREENSHOT HERE -->
+
+### 🔹 Prediction Output
+
+<!-- INSERT SCREENSHOT HERE -->
+
+---
+
+## 📈 Features
+
+* Real-time churn prediction
+* Clean API architecture
+* Input validation with error handling
+* ML pipeline integration
+* Full-stack implementation
+
+---
+
+## 💡 Key Highlights
+
+* End-to-end ML project (training → deployment)
+* FastAPI-based scalable backend
+* Industry-style project structure
+* Ready for cloud deployment
+
+---
+
+## 🚀 Future Enhancements
+
+* Deploy on AWS / Render / Azure
+* Add authentication system
+* Improve model with advanced algorithms (XGBoost, Deep Learning)
+* Build analytics dashboard
+
+---
+
+## 👨‍💻 Team Members
+
+* L ishwar
+* Gaurav
+* [Member 3 ]
+* [Member 4 ]
+* [Member 5 ]
+
+---
+
+## 📬 Conclusion
+
+This project demonstrates the practical implementation of Machine Learning in solving real-world business problems using a scalable and production-ready architecture. It showcases strong skills in AI, backend development, and system design.
+
+---
+
+Thank you for your time and consideration.
+
+Best regards,
+**Team Telecom Churn Prediction**
+B.Tech | KIIT University
