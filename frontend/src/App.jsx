@@ -11,6 +11,12 @@ function App() {
   const [darkMode, setDarkMode] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
+  const applyExample = (example) => {
+    setTenure(String(example.tenure))
+    setMonthlyCharges(String(example.MonthlyCharges))
+    setTotalCharges(String(example.TotalCharges))
+  }
+
   const toggleTheme = () => {
     setIsTransitioning(true)
     setTimeout(() => {
@@ -49,7 +55,7 @@ function App() {
       setPipelineStep(4)
       
       const data = await response.json()
-      setResult(data.churn)
+      setResult(data)
     } catch (err) {
       setError('Error connecting to server. Make sure backend is running.')
       setPipelineStep(0)
@@ -115,6 +121,28 @@ function App() {
               <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${darkMode ? 'bg-indigo-900 text-indigo-400' : 'bg-indigo-100 text-indigo-600'}`}>📊</span>
               Enter Customer Data
             </h2>
+
+            <div className="mb-5">
+              <p className={`text-xs mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Quick presets to test different outcomes
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: 'Likely Low Risk', tenure: 48, MonthlyCharges: 30, TotalCharges: 1800 },
+                  { label: 'Likely Medium Risk', tenure: 10, MonthlyCharges: 78, TotalCharges: 900 },
+                  { label: 'Likely High Risk', tenure: 2, MonthlyCharges: 120, TotalCharges: 220 },
+                ].map((example) => (
+                  <button
+                    key={example.label}
+                    type="button"
+                    onClick={() => applyExample(example)}
+                    className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${darkMode ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}
+                  >
+                    {example.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             
             <form onSubmit={handlePredict} className="space-y-4">
               <div>
@@ -133,7 +161,9 @@ function App() {
                       ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                 />
-                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>How long has the customer been with us?</p>
+                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                  Number of months since the customer started service. Lower tenure often means weaker loyalty.
+                </p>
               </div>
 
               <div>
@@ -153,7 +183,9 @@ function App() {
                       ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                 />
-                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Current monthly bill amount</p>
+                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                  Current recurring bill per month. High monthly cost can increase churn pressure.
+                </p>
               </div>
 
               <div>
@@ -173,7 +205,9 @@ function App() {
                       ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                       : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                 />
-                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Total amount paid till date</p>
+                <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                  Total amount billed over the full relationship. Combined with tenure, it reflects customer lifetime value.
+                </p>
               </div>
 
               <button 
@@ -188,18 +222,24 @@ function App() {
             {/* Result */}
             {result && (
               <div className={`mt-6 p-4 rounded-lg text-center ${
-                result === 'Yes' 
-                  ? 'bg-red-500/20 border-2 border-red-500 text-red-500' 
-                  : 'bg-green-500/20 border-2 border-green-500 text-green-500'
+                result.risk_level === 'HIGH'
+                  ? 'bg-red-500/20 border-2 border-red-500 text-red-500'
+                  : result.risk_level === 'MEDIUM'
+                    ? 'bg-amber-500/20 border-2 border-amber-500 text-amber-500'
+                    : 'bg-green-500/20 border-2 border-green-500 text-green-500'
               }`}>
                 <p className="font-bold text-lg mb-1">
-                  {result === 'Yes' ? '⚠️ Churn Risk: HIGH' : '✅ Churn Risk: LOW'}
+                  {result.risk_level === 'HIGH' ? '⚠️ Churn Risk: HIGH' : result.risk_level === 'MEDIUM' ? '🟡 Churn Risk: MEDIUM' : '✅ Churn Risk: LOW'}
                 </p>
+                <p className="text-sm opacity-90 mb-1">{result.recommendation}</p>
                 <p className="text-sm opacity-90">
-                  {result === 'Yes' 
-                    ? 'This customer is likely to leave. Consider retention strategies!' 
-                    : 'This customer is likely to stay. Keep up the good service!'}
+                  Churn probability: {Math.round((result.churn_probability || 0) * 100)}%
                 </p>
+                {Array.isArray(result.risk_factors) && result.risk_factors.length > 0 && (
+                  <p className="text-xs mt-2 opacity-80">
+                    Based on: {result.risk_factors.join(', ')}
+                  </p>
+                )}
               </div>
             )}
 
@@ -262,6 +302,21 @@ function App() {
                 <div className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>IBM Telco</div>
                 <div className={darkMode ? 'text-gray-400' : 'text-gray-500'}>Samples:</div>
                 <div className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>7,043 customers</div>
+              </div>
+            </div>
+
+            <div className={`rounded-lg p-4 mt-4 ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+              <h3 className={`font-bold mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>🧾 Field Guide</h3>
+              <div className="space-y-2 text-sm">
+                <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
+                  <strong>Tenure</strong>: Total months the customer has stayed with the provider.
+                </p>
+                <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
+                  <strong>Monthly Charges</strong>: Current monthly subscription + service fees.
+                </p>
+                <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
+                  <strong>Total Charges</strong>: Cumulative billed amount since account activation.
+                </p>
               </div>
             </div>
 
